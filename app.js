@@ -40,6 +40,7 @@ mongoose.set('strictQuery', false);
 mongoose
     .connect('mongodb://mongoadmin:secret@localhost:27017/todolist?authSource=admin')
     .then(result => {
+        console.log('App running!');
         app.listen(8080);
       })
       .catch(err => console.log(err));

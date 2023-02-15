@@ -22,6 +22,10 @@ const taskSchema = new Schema(
         creator: {
             type: String,
             required: true
+        },
+        assignee: {
+            type: String,
+            required: false
         }
     }, { timestamps: true }
 );
