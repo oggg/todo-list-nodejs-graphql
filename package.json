@@ -1,0 +1,28 @@
+{
+  "name": "todo-list-nodejs-graphql",
+  "version": "1.0.0",
+  "description": "a simple todo list with graphql and nodejs",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oggg/todo-list-nodejs-graphql.git"
+  },
+  "author": "Ognyan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/oggg/todo-list-nodejs-graphql/issues"
+  },
+  "homepage": "https://github.com/oggg/todo-list-nodejs-graphql#readme",
+  "dependencies": {
+    "body-parser": "^1.20.1",
+    "express": "^4.18.2",
+    "express-graphql": "^0.12.0",
+    "mongoose": "^6.9.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
