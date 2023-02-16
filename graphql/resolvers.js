@@ -1,5 +1,6 @@
 const task = require('../models/task');
 const Task = require('../models/task');
+const throwError = require('../utils/error');
 
 module.exports = {
     tasks: async function (args) {
@@ -31,13 +32,11 @@ module.exports = {
             updatedAt: createdTask.updatedAt?.toISOString()
         }
     },
-    updateTask: async function({id, taskInputData}) {
+    updateTask: async function ({ id, taskInputData }) {
         const task = await Task.findById(id);
         console.log(taskInputData);
         if (!task) {
-            const error = new Error(`Task with id ${id} does not exist`);
-            error.code = 404;
-            throw error;
+            throwError(`Task with id ${id} does not exist`, 404);
         }
 
         task.title = taskInputData.title;
@@ -54,5 +53,13 @@ module.exports = {
             createdAt: updatedTask.createdAt.toISOString(),
             updatedAt: updatedTask.updatedAt.toISOString()
         }
+    },
+    deleteTask: async function ({ id }) {
+        const task = await Task.findByIdAndDelete(id);
+        if (!task) {
+            throwError(`Task with id ${id} does not exist`, 404);
+        }
+        
+        return true;
     }
 };

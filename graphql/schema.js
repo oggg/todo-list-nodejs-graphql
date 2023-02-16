@@ -27,5 +27,6 @@ module.exports = buildSchema(`
      type Mutation {
         createTask(taskInput: TaskInput): Task!
         updateTask(id: ID!, taskInputData: TaskInput!): Task!
+        deleteTask(id: ID!): Boolean
      }
 `);
