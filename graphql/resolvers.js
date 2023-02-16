@@ -30,5 +30,29 @@ module.exports = {
             createdAt: createdTask.createdAt.toISOString(),
             updatedAt: createdTask.updatedAt?.toISOString()
         }
+    },
+    updateTask: async function({id, taskInputData}) {
+        const task = await Task.findById(id);
+        console.log(taskInputData);
+        if (!task) {
+            const error = new Error(`Task with id ${id} does not exist`);
+            error.code = 404;
+            throw error;
+        }
+
+        task.title = taskInputData.title;
+        task.description = taskInputData.description;
+        task.dueDate = taskInputData.dueDate;
+        task.severity = taskInputData.severity;
+        task.assignee = taskInputData.assignee;
+
+        const updatedTask = await task.save();
+        return {
+            ...updatedTask._doc,
+            _id: updatedTask._id.toString(),
+            dueDate: updatedTask.dueDate.toISOString(),
+            createdAt: updatedTask.createdAt.toISOString(),
+            updatedAt: updatedTask.updatedAt.toISOString()
+        }
     }
 };
