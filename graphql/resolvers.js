@@ -1,6 +1,6 @@
 const task = require('../models/task');
 const Task = require('../models/task');
-const throwError = require('../utils/error');
+const error = require('../utils/error');
 
 module.exports = {
     tasks: async function (args) {
@@ -15,6 +15,20 @@ module.exports = {
         })
 
     },
+    task: async function ({ id }) {
+        const task = await Task.findById(id);
+        if (!task) {
+            error.throwError(error.buildErrorMessageForId(id), 404);
+        }
+
+        return {
+            ...task._doc,
+            _id: task._id.toString(),
+            dueDate: task.dueDate.toISOString(),
+            createdAt: task.createdAt.toISOString(),
+            updatedAt: task.updatedAt?.toISOString()
+        }
+    },
     createTask: async function ({ taskInput }) {
         const task = new Task({
             title: taskInput.title,
@@ -28,6 +42,7 @@ module.exports = {
         return {
             ...createdTask._doc,
             _id: createdTask._id.toString(),
+            dueDate: createdTask.dueDate.toISOString(),
             createdAt: createdTask.createdAt.toISOString(),
             updatedAt: createdTask.updatedAt?.toISOString()
         }
@@ -36,7 +51,7 @@ module.exports = {
         const task = await Task.findById(id);
         console.log(taskInputData);
         if (!task) {
-            throwError(`Task with id ${id} does not exist`, 404);
+            error.throwError(error.buildErrorMessageForId(id), 404);
         }
 
         task.title = taskInputData.title;
@@ -57,9 +72,9 @@ module.exports = {
     deleteTask: async function ({ id }) {
         const task = await Task.findByIdAndDelete(id);
         if (!task) {
-            throwError(`Task with id ${id} does not exist`, 404);
+            error.throwError(error.buildErrorMessageForId(id), 404);
         }
-        
+
         return true;
     }
 };

@@ -10,3 +10,5 @@ exports.throwError = (errorMessage, code) => {
     error.code = code;
     throw error;
 }
+
+exports.buildErrorMessageForId = (id) => `Task with id ${id} does not exist`;

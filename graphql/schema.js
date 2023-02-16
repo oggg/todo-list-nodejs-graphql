@@ -22,6 +22,7 @@ module.exports = buildSchema(`
 
     type Query {
         tasks: [Task!]!
+        task(id: ID!): Task!
     }
 
      type Mutation {
