@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 var { graphqlHTTP } = require('express-graphql');
 const graphqlSchema = require('./graphql/schema');
 const graphqlResolver = require('./graphql/resolvers');
+require('dotenv').config();
 
 const app = express();
 app.use(bodyParser.json());
@@ -38,9 +39,9 @@ app.use((error, req, res, next) => {
 
 mongoose.set('strictQuery', false);
 mongoose
-    .connect('mongodb://mongoadmin:secret@localhost:27017/todolist?authSource=admin')
+    .connect(`mongodb://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_SERVER}/${process.env.MONGO_DEFAULT_DATABASE}`)
     .then(result => {
         console.log('App running!');
-        app.listen(8080);
+        app.listen(process.env.PORT || 3000);
       })
       .catch(err => console.log(err));
