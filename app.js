@@ -1,15 +1,25 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-
+const fs = require('fs');
+const path = require('path');
 var { graphqlHTTP } = require('express-graphql');
 const graphqlSchema = require('./graphql/schema');
 const graphqlResolver = require('./graphql/resolvers');
 require('dotenv').config();
+const helmet = require('helmet');
+const compression = require('compression');
+const morgan = require('mrgan');
 
 const app = express();
+app.use(helmet());
+app.use(compression());
 app.use(bodyParser.json());
 
+const accessLogStream = fs.createWriteStream(
+    path.join(__dirnme, 'access.log'),
+    { flags: 'a' });
+app.use(morgan('combined', { stream: accessLogStream }));
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST')
@@ -34,7 +44,7 @@ app.use((error, req, res, next) => {
     const status = error.statusCode || 500;
     const message = error.message;
     const data = error.data;
-    res.status(status).json({message: message, data: data})
+    res.status(status).json({ message: message, data: data })
 });
 
 mongoose.set('strictQuery', false);
@@ -43,5 +53,5 @@ mongoose
     .then(result => {
         console.log('App running!');
         app.listen(process.env.PORT || 3000);
-      })
-      .catch(err => console.log(err));
+    })
+    .catch(err => console.log(err));
