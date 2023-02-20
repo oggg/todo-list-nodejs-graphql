@@ -18,10 +18,16 @@ const userSchema = new Schema({
     type: String,
     default: 'I am new!'
   },
-  posts: [
+  assignedTasks: [
     {
       type: Schema.Types.ObjectId,
-      ref: 'Post'
+      ref: 'Task'
+    }
+  ],
+  createdTasks: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Task'
     }
   ]
 });
