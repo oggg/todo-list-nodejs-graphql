@@ -82,16 +82,45 @@ module.exports = {
             updatedAt: task.updatedAt?.toISOString()
         }
     },
-    createTask: async function ({ taskInput }) {
+    createTask: async function ({ taskInput }, req) {
+        if (!req.isAuth) {
+            error.throwError('Not authenticated!', 401);
+        }
+
+        const errors = [];
+        if (validator.isEmpty(taskInput.title)) {
+            errors.push({ message: 'Title is invalid.' });
+        }
+
+        if (validator.isEmpty(taskInput.description)) {
+            errors.push({ message: 'Description is invalid.' });
+        }
+
+        if (validator.isEmpty(taskInput.dueDate)) {
+            errors.push({ message: 'Due date is invalid' })
+        }
+
+        if (errors.length > 0) {
+            error.throwError('Invalid input.', 422);
+        }
+
+        const user = await User.findById(req.userId);
+        if (!user) {
+            error.throwError('Invalid user.', 401);
+        }
+
         const task = new Task({
             title: taskInput.title,
             description: taskInput.description,
             dueDate: Date.parse(taskInput.dueDate),
             severity: taskInput.severity,
-            creator: 'me'
+            creator: user
         });
 
         const createdTask = await task.save();
+        user.createdTasks.push(createdTask);
+        await user.save();
+
         return {
             ...createdTask._doc,
             _id: createdTask._id.toString(),
@@ -100,11 +129,27 @@ module.exports = {
             updatedAt: createdTask.updatedAt?.toISOString()
         }
     },
-    updateTask: async function ({ id, taskInputData }) {
-        const task = await Task.findById(id);
-        console.log(taskInputData);
+    updateTask: async function ({ id, taskInputData }, req) {
+        if (!req.isAuth) {
+            error.throwError('Not authenticated!', 401);
+        }
+
+        const task = await Task.findById(id).populate('creator').populate('assignee');
         if (!task) {
-            error.throwError(error.buildErrorMessageForId(id), 404);
+            error.throwError('No task found!', 404);
+        }
+        if (task.creator._id.toString() !== req.userId.toString()) {
+            error.throwError('Not authorized!', 403);
+        }
+        const errors = [];
+        if (validator.isEmpty(taskInputData.title)) {
+            errors.push({ message: 'Title is invalid.' });
+        }
+        if (validator.isEmpty(taskInputData.decription)) {
+            errors.push({ message: 'Decription is invalid.' });
+        }
+        if (errors.length > 0) {
+            error.throwError('Invalid input.', 422);
         }
 
         task.title = taskInputData.title;
@@ -122,10 +167,28 @@ module.exports = {
             updatedAt: updatedTask.updatedAt.toISOString()
         }
     },
-    deleteTask: async function ({ id }) {
-        const task = await Task.findByIdAndDelete(id);
+    deleteTask: async function ({ id }, req) {
+        if (!req.isAuth) {
+            error.throwError('Not authenticated!', 401);
+        }
+
+        const task = await Task.findById(id);
         if (!task) {
-            error.throwError(error.buildErrorMessageForId(id), 404);
+            error.throwError('No task found!', 404);
+        }
+        if (task.creator._id.toString() !== req.userId.toString()) {
+            error.throwError('Not authorized!', 403);
+        }
+
+        task.findByIdAndRemove(id);
+        const creator = await User.findById(req.userId);
+        creator.createdTasks.pull(id);
+        await creator.save();
+
+        if (task.assignee) {
+            const assignee = await User.findById(task.assignee);
+            assignee.assignedTasks.pull(id);
+            await assignee.save();
         }
 
         return true;
