@@ -20,12 +20,13 @@ const taskSchema = new Schema(
             required: true
         },
         creator: {
-            type: String,
+            type: Schema.Types.ObjectId,
+            ref: 'User',
             required: true
         },
         assignee: {
-            type: String,
-            required: false
+            type: Schema.Types.ObjectId,
+            ref: 'User'
         }
     }, { timestamps: true }
 );
