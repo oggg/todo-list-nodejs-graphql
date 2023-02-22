@@ -9,7 +9,7 @@ const graphqlResolver = require('./graphql/resolvers');
 require('dotenv').config();
 const helmet = require('helmet');
 const compression = require('compression');
-const morgan = require('mrgan');
+const morgan = require('morgan');
 
 const app = express();
 app.use(helmet());
@@ -17,7 +17,7 @@ app.use(compression());
 app.use(bodyParser.json());
 
 const accessLogStream = fs.createWriteStream(
-    path.join(__dirnme, 'access.log'),
+    path.join(__dirname, 'access.log'),
     { flags: 'a' });
 app.use(morgan('combined', { stream: accessLogStream }));
 app.use((req, res, next) => {
