@@ -51,7 +51,7 @@ mongoose.set('strictQuery', false);
 mongoose
     .connect(`mongodb://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_SERVER}/${process.env.MONGO_DEFAULT_DATABASE}`)
     .then(result => {
-        console.log('App running!');
         app.listen(process.env.PORT || 3000);
+        console.log('App running!');
     })
     .catch(err => console.log(err));

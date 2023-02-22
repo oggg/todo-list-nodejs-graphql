@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 
-const task = require('../models/task');
+const User = require('../models/user');
 const Task = require('../models/task');
 const error = require('../utils/error');
 
@@ -13,8 +13,7 @@ module.exports = {
             errors.push({ message: 'E-Mail is invalid.' });
         }
         if (
-            validator.isEmpty(userInput.password) ||
-            !validator.isLength(userInput.password, { min: 5 })
+            validator.isEmpty(userInput.password)
         ) {
             errors.push({ message: 'Password too short!' });
         }
@@ -23,7 +22,7 @@ module.exports = {
         }
 
         const existingUser = await User.findOne({ email: userInput.email });
-        if (!existingUser) {
+        if (existingUser) {
             error.throwError('User exists already!', 409);
         }
         const hashedPw = await bcrypt.hash(userInput.password, 12);
