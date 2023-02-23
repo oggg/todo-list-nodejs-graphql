@@ -55,7 +55,10 @@ module.exports = {
 
         return { token: token, userId: user._id.toString() };
     },
-    tasks: async function (args) {
+    tasks: async function (args, req) {
+        if (!req.isAuth) {
+            error.throwError('Not authenticated!', 401);
+        }
         const taskList = await Task.find({});
         return taskList.map(t => {
             return {
@@ -67,7 +70,10 @@ module.exports = {
         })
 
     },
-    task: async function ({ id }) {
+    task: async function ({ id }, req) {
+        if (!req.isAuth) {
+            error.throwError('Not authenticated!', 401);
+        }
         const task = await Task.findById(id);
         if (!task) {
             error.throwError(error.buildErrorMessageForId(id), 404);
