@@ -1,21 +1,22 @@
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 
-const task = require('../models/task');
+const User = require('../models/user');
 const Task = require('../models/task');
 const error = require('../utils/error');
+const factory = require('../utils/factory');
 
 module.exports = {
     createUser: async function ({ userInput }) {
         const errors = [];
-        if (!validator.isEmail(userInput.email)) {
+        if (!validator.isEmail(userInput?.email)) {
             errors.push({ message: 'E-Mail is invalid.' });
         }
         if (
-            validator.isEmpty(userInput.password) ||
-            !validator.isLength(userInput.password, { min: 5 })
-        ) {
+            validator.isEmpty(userInput?.password) ||
+            !validator.isLength(userInput.password, { min: 4 })
+         ) {
             errors.push({ message: 'Password too short!' });
         }
         if (errors.length > 0) {
@@ -23,15 +24,13 @@ module.exports = {
         }
 
         const existingUser = await User.findOne({ email: userInput.email });
-        if (!existingUser) {
+        if (existingUser) {
             error.throwError('User exists already!', 409);
         }
+
         const hashedPw = await bcrypt.hash(userInput.password, 12);
-        const user = new User({
-            email: userInput.email,
-            name: userInput.name,
-            password: hashedPw
-        });
+        const user = factory.createUser(userInput.email, userInput.name, hashedPw);
+        
         const createdUser = await user.save();
         return { ...createdUser._doc, _id: createdUser._id.toString() };
     },
@@ -56,7 +55,10 @@ module.exports = {
 
         return { token: token, userId: user._id.toString() };
     },
-    tasks: async function (args) {
+    tasks: async function (args, req) {
+        if (!req.isAuth) {
+            error.throwError('Not authenticated!', 401);
+        }
         const taskList = await Task.find({});
         return taskList.map(t => {
             return {
@@ -68,7 +70,10 @@ module.exports = {
         })
 
     },
-    task: async function ({ id }) {
+    task: async function ({ id }, req) {
+        if (!req.isAuth) {
+            error.throwError('Not authenticated!', 401);
+        }
         const task = await Task.findById(id);
         if (!task) {
             error.throwError(error.buildErrorMessageForId(id), 404);
@@ -109,13 +114,8 @@ module.exports = {
             error.throwError('Invalid user.', 401);
         }
 
-        const task = new Task({
-            title: taskInput.title,
-            description: taskInput.description,
-            dueDate: Date.parse(taskInput.dueDate),
-            severity: taskInput.severity,
-            creator: user
-        });
+        const task = factory.createTask(taskInput.title, taskInput.description,
+            taskInput.dueDate, taskInput.severity, user);
 
         const createdTask = await task.save();
         user.createdTasks.push(createdTask);

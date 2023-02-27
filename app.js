@@ -9,7 +9,7 @@ const graphqlResolver = require('./graphql/resolvers');
 require('dotenv').config();
 const helmet = require('helmet');
 const compression = require('compression');
-const morgan = require('mrgan');
+const morgan = require('morgan');
 
 const app = express();
 app.use(helmet());
@@ -17,7 +17,7 @@ app.use(compression());
 app.use(bodyParser.json());
 
 const accessLogStream = fs.createWriteStream(
-    path.join(__dirnme, 'access.log'),
+    path.join(__dirname, 'access.log'),
     { flags: 'a' });
 app.use(morgan('combined', { stream: accessLogStream }));
 app.use((req, res, next) => {
@@ -36,22 +36,30 @@ app.use('/graphql',
     graphqlHTTP({
         schema: graphqlSchema,
         rootValue: graphqlResolver,
-        graphiql: true
+        graphiql: true,
+        customFormatErrorFn(err) {
+            if (!err.originalError) {
+              return err;
+            }
+            const data = err.originalError.data;
+            const message = err.message || 'An error occurred.';
+            const code = err.originalError.code || 500;
+            return ({ message: message, status: code, data: data });
+          }
     }));
 
 app.use((error, req, res, next) => {
-    console.log(error);
-    const status = error.statusCode || 500;
+    const status = error.code;
     const message = error.message;
     const data = error.data;
-    res.status(status).json({ message: message, data: data })
+    return res.status(status).json({ message: message, data: data })
 });
 
 mongoose.set('strictQuery', false);
 mongoose
     .connect(`mongodb://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_SERVER}/${process.env.MONGO_DEFAULT_DATABASE}`)
     .then(result => {
-        console.log('App running!');
         app.listen(process.env.PORT || 3000);
+        console.log('App running!');
     })
     .catch(err => console.log(err));
