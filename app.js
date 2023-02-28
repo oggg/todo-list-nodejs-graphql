@@ -10,6 +10,7 @@ require('dotenv').config();
 const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
+const auth = require('./middleware/is-auth');
 
 const app = express();
 app.use(helmet());
@@ -32,6 +33,8 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use(auth);
+
 app.use('/graphql',
     graphqlHTTP({
         schema: graphqlSchema,
@@ -48,12 +51,13 @@ app.use('/graphql',
           }
     }));
 
-app.use((error, req, res, next) => {
-    const status = error.code;
-    const message = error.message;
-    const data = error.data;
-    return res.status(status).json({ message: message, data: data })
-});
+// the commented code below is used for exception handling when the API is REST, not a GraphQL one
+// app.use((error, req, res, next) => {
+//     const status = error.code;
+//     const message = error.message;
+//     const data = error.data;
+//     return res.status(status).json({ message: message, data: data })
+// });
 
 mongoose.set('strictQuery', false);
 mongoose
