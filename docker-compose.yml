@@ -1,0 +1,20 @@
+services:
+  node:
+    restart: always
+    build: .
+    ports:
+      - ${PORT}:${PORT}
+    links:
+      - mongo
+  mongo:
+    image: ${MONGO_SERVER}
+    hostname: ${MONGO_SERVER}
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+    ports:
+      - ${MONGO_PORT}:${MONGO_PORT}
+    volumes:
+      - todo-mongo:/data/db
+volumes:
+  todo-mongo:
