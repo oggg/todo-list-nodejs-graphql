@@ -23,6 +23,7 @@ module.exports = buildSchema(`
         description: String!
         dueDate: String!
         severity: String!
+        assignee: ID
     }
 
     input UserInputData {
