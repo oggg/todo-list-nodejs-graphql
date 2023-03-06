@@ -61,7 +61,7 @@ app.use('/graphql',
 
 mongoose.set('strictQuery', false);
 mongoose
-    .connect(`${MONGO_PROTOCOL}://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${MONGO_SERVER}/${process.env.MONGO_DEFAULT_DATABASE}?${process.env.MONGO_PROPS}`)
+    .connect(`${process.env.MONGO_PROTOCOL}://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${MONGO_SERVER}/${process.env.MONGO_DEFAULT_DATABASE}?${process.env.MONGO_PROPS}`)
     .then(result => {
         app.listen(process.env.PORT || 3000);
         console.log('App running!');
