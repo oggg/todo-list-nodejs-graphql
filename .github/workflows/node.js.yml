@@ -10,8 +10,8 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-
+  test:
+    name: Test and build
     runs-on: ubuntu-latest
 
 #    strategy:
@@ -31,3 +31,20 @@ jobs:
     - run: npm ci
     - run: npm run build --if-present
     - run: npm test
+  deploy:
+    name: Deploy
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          MONGO_USERNAME: ${{ secrets.MONGO_USERNAME }}
+          MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
+          MONGO_SERVER: ${{ secrets.MONGO_SERVER }}
+          MONGO_DEFAULT_DATABASE: ${{ secrets.MONGO_DEFAULT_DATABASE }}
+          MONGO_PROTOCOL: ${{ secrets.MONGO_PROTOCOL }}
+          MONGO_PROPS: ${{ secrets.MONGO_USERNAME }}
+          PORT: ${{ secrets.PORT }}
