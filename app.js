@@ -42,13 +42,13 @@ app.use('/graphql',
         graphiql: true,
         customFormatErrorFn(err) {
             if (!err.originalError) {
-              return err;
+                return err;
             }
             const data = err.originalError.data;
             const message = err.message || 'An error occurred.';
             const code = err.originalError.code || 500;
             return ({ message: message, status: code, data: data });
-          }
+        }
     }));
 
 // the commented code below is used for exception handling when the API is REST, not a GraphQL one
@@ -61,7 +61,11 @@ app.use('/graphql',
 
 mongoose.set('strictQuery', false);
 mongoose
-    .connect(process.env.MONGO_CONNECTIONSTRING)
+    .connect(process.env.MONGO_CONNECTIONSTRING,
+        {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        })
     .then(result => {
         app.listen(process.env.PORT || 3000);
         console.log('App running!');
