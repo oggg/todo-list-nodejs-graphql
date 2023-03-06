@@ -49,3 +49,5 @@ jobs:
           MONGO_PROTOCOL: ${{ secrets.MONGO_PROTOCOL }}
           MONGO_PROPS: ${{ secrets.MONGO_USERNAME }}
           PORT: ${{ secrets.PORT }}
+          MONGO_CONNECTIONSTRING: ${{ secrets.MONGO_CONNECTIONSTRING }}
+
