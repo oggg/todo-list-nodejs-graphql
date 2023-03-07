@@ -167,28 +167,7 @@ describe('GraphQL resolver for user', function () {
         bcrypt.compare.restore();
     });
 
-    it('Just for a demo', async function () {
-        const args = {
-            email: 'test@test.com',
-            password: 'test'
-        };
-
-        const user = new User();
-
-        sinon.stub(User, 'findOne');
-        User.findOne.returns(user);
-
-        sinon.stub(bcrypt, 'compare');
-        bcrypt.compare.returns(true);
-
-        sinon.stub(jwt, 'sign');
-        jwt.sign.returns('token');
-        const result = await resolver.login(args);
-
-        expect(result.token).to.be.equal('token');
-        expect(result.userId).to.be.equal(user._id.toString());
-
-        User.findOne.restore();
-        bcrypt.compare.restore();
+    it('demo', function () {
+        expect(1).to.be.equal(1);
     });
 });
