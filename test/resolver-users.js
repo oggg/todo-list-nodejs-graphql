@@ -166,4 +166,8 @@ describe('GraphQL resolver for user', function () {
         User.findOne.restore();
         bcrypt.compare.restore();
     });
+
+    it('demo', function () {
+        expect(1).to.be.equal(1);
+    });
 });
